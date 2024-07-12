@@ -57,11 +57,6 @@
     path: /etc/hosts.allow
     state: touch
 
-- name: Configure /etc/hosts.deny to deny all
-  lineinfile:
-    dest: /etc/hosts.deny
-    line: 'ALL: ALL'
-    create: yes
 
 - name: Ensure root login is disabled via SSH
   lineinfile:
