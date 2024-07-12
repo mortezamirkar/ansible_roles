@@ -1,0 +1,120 @@
+---
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install common dependencies
+  apt:
+    name:
+      - software-properties-common
+      - gnupg2
+      - lsb-release
+    state: present
+
+- name: Add PHP repository
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+
+- name: Install PHP and required extensions
+  apt:
+    name: "{{ php_extensions }}"
+    state: present
+
+- name: Add MySQL APT repository
+  apt_repository:
+    repo: 'deb http://repo.mysql.com/apt/debian/ $(lsb_release -sc) mysql-8.0'
+    state: present
+
+- name: Install MySQL server
+  apt:
+    name: mysql-server
+    state: present
+
+- name: Set MySQL root password
+  mysql_user:
+    name: root
+    host_all: yes
+    password: "{{ mysql_root_password }}"
+    priv: "*.*:ALL,GRANT"
+
+- name: Secure MySQL installation
+  mysql_secure_installation:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    user: root
+    password: "{{ mysql_root_password }}"
+    host_all: yes
+    remove_anonymous_user: yes
+    disallow_root_login_remotely: yes
+    remove_test_db: yes
+    state: present
+
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Start and enable Nginx service
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Install Redis
+  apt:
+    name: redis-server
+    state: present
+
+- name: Start and enable Redis service
+  service:
+    name: redis-server
+    state: started
+    enabled: yes
+
+- name: Create Nginx server block configuration
+  copy:
+    dest: /etc/nginx/sites-available/default
+    content: |
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
+
+          root /var/www/html;
+          index index.php index.html index.htm;
+
+          server_name _;
+
+          location / {
+              try_files $uri $uri/ =404;
+          }
+
+          location ~ \.php$ {
+              include snippets/fastcgi-php.conf;
+              fastcgi_pass unix:/run/php/php{{ php_version }}-fpm.sock;
+          }
+
+          location ~ /\.ht {
+              deny all;
+          }
+      }
+  notify: reload nginx
+
+- name: Ensure document root exists
+  file:
+    path: /var/www/html
+    state: directory
+
+- name: Test PHP configuration
+  copy:
+    dest: /var/www/html/info.php
+    content: |
+      <?php
+      phpinfo();
+      ?>
+
+- name: Remove default index.html
+  file:
+    path: /var/www/html/index.html
+    state: absent

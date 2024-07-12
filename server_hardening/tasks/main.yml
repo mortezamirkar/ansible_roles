@@ -1,0 +1,91 @@
+---
+- name: Update all packages to the latest version
+  apt:
+    update_cache: yes
+    upgrade: dist
+  when: ansible_os_family == "Debian"
+
+- name: Ensure firewalld is installed and running
+  yum:
+    name: firewalld
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Start and enable firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Open necessary firewall ports
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: yes
+    state: enabled
+  with_items: "{{ firewall_allowed_ports }}"
+  notify: reload firewalld
+  when: ansible_os_family == "RedHat"
+
+- name: Disable and stop unnecessary services
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - telnet
+    - rsh
+    - rexec
+
+- name: Set password aging policies
+  lineinfile:
+    dest: /etc/login.defs
+    regexp: '^{{ item.key }}'
+    line: '{{ item.key }} {{ item.value }}'
+  with_dict:
+    PASS_MAX_DAYS: 90
+    PASS_MIN_DAYS: 7
+    PASS_WARN_AGE: 14
+
+- name: Ensure /etc/hosts.deny file exists
+  file:
+    path: /etc/hosts.deny
+    state: touch
+
+- name: Ensure /etc/hosts.allow file exists
+  file:
+    path: /etc/hosts.allow
+    state: touch
+
+- name: Configure /etc/hosts.deny to deny all
+  lineinfile:
+    dest: /etc/hosts.deny
+    line: 'ALL: ALL'
+    create: yes
+
+- name: Ensure root login is disabled via SSH
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+  notify: restart ssh
+
+- name: Ensure password authentication is disabled
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+  notify: restart ssh
+
+- name: Install fail2ban
+  apt:
+    name: fail2ban
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Ensure fail2ban is started and enabled
+  service:
+    name: fail2ban
+    state: started
+    enabled: yes
+  when: ansible_os_family == "Debian"
