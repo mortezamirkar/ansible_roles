@@ -1,4 +1,3 @@
-### `README.md`
 
 ```markdown
 # Ansible Role: Server Hardening
