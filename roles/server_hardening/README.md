@@ -1,5 +1,4 @@
-
-```markdown
+````markdown
 # Ansible Role: Server Hardening
 
 This Ansible role performs server hardening by configuring iptables for enhanced security and setting a custom SSH banner. The role includes tasks to secure the server by configuring firewall rules, disabling unnecessary services, and setting up a secure SSH configuration.
@@ -19,8 +18,8 @@ ssh_banner_message: "Authorized access only. All activity may be monitored and r
 
 # List of allowed ports
 iptables_allowed_ports:
-  - 22  # SSH
-  - 80  # HTTP
+  - 22 # SSH
+  - 80 # HTTP
   - 443 # HTTPS
 
 # List of packages to install for hardening
@@ -28,6 +27,7 @@ hardening_packages:
   - ufw
   - fail2ban
 ```
+````
 
 ## Dependencies
 
@@ -101,6 +101,7 @@ Disables and stops any unnecessary services to reduce the attack surface.
 ### Secure SSH Configuration
 
 Configures SSH for enhanced security by:
+
 - Disabling root login
 - Allowing only specific users
 - Setting a custom banner message
@@ -138,3 +139,4 @@ sudo fail2ban-client status
 ```
 
 This `README.md` file provides a clear and concise overview of the server hardening Ansible role, including installation, usage, and customization instructions. You can adjust the content to fit your specific needs and include additional information if necessary.
+```

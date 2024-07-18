@@ -22,6 +22,11 @@
     name: "{{ php_extensions }}"
     state: present
 
+- name: Install composer
+  apt:
+    name: composer
+    state: present
+
 - name: Add MySQL APT repository
   apt_repository:
     repo: 'deb http://repo.mysql.com/apt/debian/ $(lsb_release -sc) mysql-8.0'
