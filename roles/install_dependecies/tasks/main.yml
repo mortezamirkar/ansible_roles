@@ -1,0 +1,35 @@
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install common dependencies
+  apt:
+    name:
+      - software-properties-common
+      - gnupg2
+      - lsb-release
+    state: present
+
+- name: Add PHP repository
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+
+- name: Install PHP and required extensions
+  apt:
+    name: "{{ php_extensions }}"
+    state: present
+
+- name: Install composer
+  apt:
+    name: composer
+    state: present
+- name: install server dependencies
+  apt:
+    name: "{{ dependencies }}"
+    state: present
+  
+- name: install npm dependencies
+  include_tasks: install_nodeDeps.yml
+    

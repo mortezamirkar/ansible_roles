@@ -1,6 +1,8 @@
 ---
+nvm_version: "0.39.7"
+node_version: "v18.20.3"
 php_version: "8.2"
-mysql_root_password: "your_root_password"
+mysql_root_password: "P@ssw0rd"
 php_extensions:
   - php8.2
   - php8.2-mysql
@@ -21,3 +23,13 @@ php_extensions:
   - php8.2-pdo
   - php8.2-tokenizer
   - php8.2-fpm
+
+dependencies:
+  - nginx
+  - mysql-server
+  - redis
+  - htop
+  - python3-certbot-nginx
+  - build-essential
+  - curl
+  - git

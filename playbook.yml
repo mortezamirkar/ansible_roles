@@ -1,14 +1,7 @@
 ---
-- name: hardding the servers!
-  hosts: all
-  become: true
-  roles:
-    - server_hardening
-
 - name: Set up LAMP stack with Nginx, PHP 8.2, MySQL, and Redis
-  hosts: lamp_servers
+  hosts: servers
   become: true
   roles:
+    - install_dependecies
     - lamp_setup
-    - devsec.hardening.os_hardening
-    - devsec.hardening.nginx_hardening
